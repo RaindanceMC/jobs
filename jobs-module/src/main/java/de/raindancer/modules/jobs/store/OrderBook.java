@@ -222,11 +222,17 @@ public final class OrderBook {
      * server's minute has to settle.
      */
     public Map<UUID, Ledger> actionable(long now) {
+        return actionable(now, false);
+    }
+
+    /** As {@link #actionable(long)}; with {@code everyOpen} also every order still running. */
+    public Map<UUID, Ledger> actionable(long now, boolean everyOpen) {
         Optional<List<UUID>> players = database.read(connection -> {
             List<UUID> found = new ArrayList<>();
             try (PreparedStatement query = connection.prepareStatement(
-                    "SELECT player FROM order_ledger WHERE state = 'OWED' OR (state = 'OPEN' AND ends_at <= ?)")) {
+                    "SELECT player FROM order_ledger WHERE state = 'OWED' OR (state = 'OPEN' AND (ends_at <= ? OR ?))")) {
                 query.setLong(1, now);
+                query.setBoolean(2, everyOpen);
                 try (ResultSet rows = query.executeQuery()) {
                     while (rows.next()) {
                         try {

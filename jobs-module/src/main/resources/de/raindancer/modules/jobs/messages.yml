@@ -44,6 +44,7 @@ jobs:
     bar: "<gold><work> <white><progress>/<units></white> <gray>· <white><left></white> left"
     done: "<green>Order done: <white><work></white>, with <white><left></white> to spare — <amount><green>."
     failed: "<red>Time is up: <white><work></white> got to <white><progress>/<units></white>. <gray>Nothing is paid. The clock does not do sympathy."
+    called-off: "<red>Your order <white><work></white> is called off: orders are switched off for now. <gray>Nothing is paid."
     owed: "<yellow>Order done: <white><work></white>, but <amount><yellow> could not be paid right now. <gray>It is kept for you and paid as soon as it can be."
     paid-late: "<green>The pay for your order that was held back is paid: <amount><green>."
     busy: "<red>You are on an order already. <gray>Finish it first — or <white>/quests cancel</white>, if you must."

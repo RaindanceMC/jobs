@@ -145,6 +145,24 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("switched off, running orders are called off at the next minute, count nothing and pay nothing")
+    void switchedOffCallsOff() {
+        OrderSettings off = new OrderSettings(false, 3, 4, 5, "100", "1000", "100000000000", "1000000", 1.4, 0.15, 750);
+        OrderService.Offer onScreen = service.ask(ana, coins("1000")).offer();
+        service.settings(off);
+        assertThat(service.accept(player, onScreen)).as("an offer still on screen").isFalse();
+        service.settings(OrderSettings.DEFAULTS);
+        OrderService.Offer offer = service.ask(ana, coins("1000")).offer();
+        assertThat(service.accept(player, offer)).isTrue();
+        service.settings(off);
+        service.progress(player, QuestTask.KILL, "ZOMBIE", offer.units());
+        assertThat(service.current(ana).orElseThrow().state()).isEqualTo(Order.State.OPEN);
+        assertThat(service.tick()).containsExactly(player);
+        assertThat(service.current(ana).orElseThrow().state()).isEqualTo(Order.State.FAILED);
+        assertThat(bank.balance(ana)).isEqualTo(Money.ZERO);
+    }
+
+    @Test
     @DisplayName("taken, it counts what it asks for and pays the amount asked when done in time")
     void doneInTime() {
         OrderService.Offer offer = service.ask(ana, coins("1000")).offer();

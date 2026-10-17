@@ -247,6 +247,10 @@ public final class OrderService {
     /** Takes an offer: the clock starts now. */
     public synchronized boolean accept(Player player, Offer offer) {
         UUID id = player.getUniqueId();
+        if (!settings.enabled()) {
+            messages.send(player, "jobs.order.switched-off");
+            return false;
+        }
         OrderBook.Ledger ledger = ledger(id);
         if (ledger.current().filter(OrderService::running).isPresent()) {
             messages.send(player, "jobs.order.busy");
@@ -291,6 +295,9 @@ public final class OrderService {
     /** Something done that may count towards the running order. */
     public synchronized void progress(Player player, QuestTask task, String thing, int count) {
         UUID id = player.getUniqueId();
+        if (!settings.enabled()) {
+            return;
+        }
         Optional<OrderBook.Ledger> held = book.of(id);
         if (count <= 0 || held.isEmpty() || held.get().current().filter(OrderService::running).isEmpty()) {
             return;
@@ -343,12 +350,24 @@ public final class OrderService {
     public synchronized java.util.List<Player> tick() {
         long now = clock.getAsLong();
         java.util.List<Player> ended = new java.util.ArrayList<>();
-        book.actionable(now).forEach((player, ledger) -> {
+        boolean off = !settings.enabled();
+        // Switched off, every running order is called off, not only the ones whose time is up.
+        book.actionable(now, off).forEach((player, ledger) -> {
             Order order = ledger.order();
             if (order == null) {
                 return;
             }
-            if (order.state() == Order.State.OPEN && now >= order.endsAt()) {
+            if (order.state() == Order.State.OPEN && off) {
+                if (book.putNow(player, ledger, ledger.with(order.in(Order.State.FAILED)))) {
+                    Player online = server.getPlayer(player);
+                    if (online != null) {
+                        ended.add(online);
+                    }
+                    notices.tell(player, "jobs.order.called-off", "work", order.says());
+                    log.info("Order of {} called off (orders switched off): {} at {}/{}.", player, order.says(),
+                            order.progress(), order.units());
+                }
+            } else if (order.state() == Order.State.OPEN && now >= order.endsAt()) {
                 if (book.putNow(player, ledger, ledger.with(order.in(Order.State.FAILED)))) {
                     Player online = server.getPlayer(player);
                     if (online != null) {
