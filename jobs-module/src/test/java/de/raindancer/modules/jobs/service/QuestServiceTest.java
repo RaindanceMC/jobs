@@ -282,4 +282,24 @@ class QuestServiceTest {
         assertThat(service.reroll(ana, 0)).isFalse();
         assertThat(service.rerollsLeft(ana)).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("a quest finished on a block break is paid off the server's thread, once, however much more is mined meanwhile")
+    void finishedOffThread() {
+        java.util.List<Runnable> queued = new java.util.ArrayList<>();
+        service.finishOn(queued::add);
+        miner();
+        service.today(ana);
+
+        service.progress(player, QuestTask.MINE, "IRON_ORE", 20);
+        service.progress(player, QuestTask.MINE, "IRON_ORE", 5);
+
+        assertThat(bank.balance(ana)).as("nothing paid on the calling thread").isEqualTo(Money.of(1_000));
+        assertThat(quest("iron").state()).isEqualTo(Quest.State.OPEN);
+        assertThat(queued).as("finished once, not again for what came after").hasSize(1);
+
+        queued.forEach(Runnable::run);
+        assertThat(quest("iron").state()).isEqualTo(Quest.State.PAID);
+        assertThat(bank.balance(ana)).isEqualTo(Money.of(1_000).plus(coins("250")));
+    }
 }

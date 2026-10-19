@@ -55,6 +55,10 @@ public final class QuestService {
     private final Map<UUID, Double> walked = new ConcurrentHashMap<>();
     private final Notices notices;
     private volatile QuestSettings settings;
+    /** Where a finished quest is written and paid: database work, so off the server's threads when running. */
+    private volatile java.util.concurrent.Executor finishing = Runnable::run;
+    /** Quests handed to {@link #finishing} and not finished yet, as player|index: each is handed over once. */
+    private final Set<String> pending = ConcurrentHashMap.newKeySet();
 
     public QuestService(Server server, QuestCatalogue catalogue, QuestBook book, Messages messages, LogChannel log,
                         LongSupplier clock, ZoneId zone, Random random, QuestSettings settings) {
@@ -259,7 +263,13 @@ public final class QuestService {
         QuestDay day = today(id);
         for (int i = 0; i < day.quests().size(); i++) {
             Quest quest = day.quests().get(i);
-            if (!quest.open() || quest.done()) {
+            if (!quest.open()) {
+                continue;
+            }
+            if (quest.done()) {
+                // Done but not paid: being finished, or left so by a restart in between — handed over (again).
+                handOver(player, i);
+                day = today(id);
                 continue;
             }
             Optional<QuestTemplate> template = template(quest);
@@ -270,13 +280,52 @@ public final class QuestService {
             Quest moved = quest.plus(count);
             day = day.with(i, moved);
             if (moved.done()) {
-                day = finish(player, day, i, template.get());
+                book.put(id, day);
+                handOver(player, i);
+                day = today(id);
             } else {
                 book.put(id, day);
                 player.sendActionBar(messages.get("jobs.quest.progress", "quest", template.get().title(),
                         "progress", String.valueOf(moved.progress()), "amount", String.valueOf(moved.amount())));
             }
         }
+    }
+
+    /** Runs the finishing of quests (writing and paying them) here — the module hands it off the server's threads. */
+    public void finishOn(java.util.concurrent.Executor executor) {
+        this.finishing = executor == null ? Runnable::run : executor;
+    }
+
+    private void handOver(Player player, int index) {
+        String key = player.getUniqueId() + "|" + index;
+        if (!pending.add(key)) {
+            return;
+        }
+        try {
+            finishing.execute(() -> {
+                try {
+                    finishNow(player, index);
+                } finally {
+                    pending.remove(key);
+                }
+            });
+        } catch (RuntimeException refused) {
+            // Shutting down: the quest stays done and open, and is handed over again on the next progress.
+            pending.remove(key);
+        }
+    }
+
+    /** Finishes the quest at {@code index} if it is still done and open — as the day is now, not when handed over. */
+    private synchronized void finishNow(Player player, int index) {
+        QuestDay day = today(player.getUniqueId());
+        if (index >= day.quests().size()) {
+            return;
+        }
+        Quest quest = day.quests().get(index);
+        if (!quest.open() || !quest.done()) {
+            return;
+        }
+        template(quest).ifPresent(template -> finish(player, day, index, template));
     }
 
     /**
