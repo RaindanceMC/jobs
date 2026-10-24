@@ -1,0 +1,38 @@
+id: jobs
+title: The job board
+summary: "Server-wide goals everybody works on together, and your share of the reward."
+intro: |
+  Everybody pulls on the same rope, and the reward is split by who pulled hardest. Fair, if you ignore the fish.
+icon: LECTERN
+category: Progress & rewards
+order: 20
+module: jobs
+permission: rainsjobs.use
+aliases: [jobs, goals, board, job board, goal]
+keywords: [deliver, fish, reward, share, median, collect, hand in]
+commands: [jobs]
+related: [jobs-quests, jobs-orders, jobs-staff]
+sections:
+  - question: What is the job board?
+    title: The board
+    text: |
+      {run:/jobs} opens the board: up to <white>{setting:jobs:active-goals|count}</white> goals at once, each with an amount, a deadline and the progress so far. Everybody works on the same goal.
+      {if:jobs:announce}A line in chat tells everybody when a goal goes up, is reached or runs out.{/if}
+  - question: How do I help?
+    title: Helping
+    text: |
+      Two kinds of goal. <b>Deliver</b>: collect the items and hand them in at the board (plain items, not renamed); the board says what counts. <b>Fish</b>: fish with a rod anywhere — every fish you reel in counts on its own, and you see a +1 each time.
+      {if:jobs:stop-sales}While a goal collects an item, the shop does not sell it, so you cannot buy it and hand it straight in.{/if}
+  - question: How is the reward split?
+    title: Your share
+    text: |
+      A reached goal pays a reward shared by what each player gave: give 30% of it, get 30%. The reward is {setting:jobs:reward-percent|percent} of the <i>median balance</i> of players seen in the last {setting:jobs:median-of-days|days}, so it is a lot to somebody poor and little to somebody rich.
+      At least {setting:jobs:least-reward|money}{if:jobs:most-reward}, at most {setting:jobs:most-reward|money}{/if}. Rewards are scaled by {setting:jobs:goals.pay-scale-percent|percent}.
+  - question: What if the goal is missed?
+    title: Missed goals
+    text: |
+      Whoever helped is still paid for the part that was reached. And the next goal of that kind learns: reached early, the next is up to twice as big; missed, it shrinks to what was managed.
+  - question: What if I cannot be paid right now?
+    title: Held payments
+    text: |
+      A payment that cannot be made right now is kept for you and paid as soon as it can be; you are told when it arrives.

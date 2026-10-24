@@ -1,0 +1,40 @@
+id: jobs-quests
+title: Daily quests
+summary: "A few personal quests every day — mining, fishing, hunting — paid the moment each is done."
+intro: |
+  Homework, but it pays.
+icon: WRITABLE_BOOK
+category: Progress & rewards
+order: 21
+module: jobs
+when: jobs-quests:quests.enabled
+permission: rainsjobs.use
+aliases: [quests, quest, dailies, daily]
+keywords: [tier, role, swap, reroll, pay, reward, progress]
+commands: [quests]
+related: [jobs, jobs-orders]
+sections:
+  - question: What are quests?
+    title: Quests
+    text: |
+      {run:/quests} shows your quests for today: <white>{setting:jobs-quests:quests.per-day|count}</white> for anybody{if:jobs-quests:quests.per-day-for-role > 0}, plus <white>{setting:jobs-quests:quests.per-day-for-role|count}</white> about your role (a Miner's are about ore, a Hunter's about monsters){/if}. Just do the thing — a +1 pops up as you progress, and the pay arrives the moment one is done.
+      {if:jobs-quests:quests.tell-on-join}When you join with new quests you are told.{/if}
+  - question: Do they get harder as I get rich?
+    title: Tiers
+    when: jobs-quests:quests.tiers.most > 0 && jobs-quests:quests.tiers.step != 0
+    text: |
+      Yes. With {setting:jobs-quests:quests.tiers.step|money} you are tier 1; every doubling past it is a tier more, up to tier {setting:jobs-quests:quests.tiers.most|count}. Each tier asks {setting:jobs-quests:quests.tiers.harder-percent|percent} more and pays {setting:jobs-quests:quests.tiers.pay-more-percent|percent} more.
+  - question: Do roles pay more?
+    title: Role bonus
+    when: jobs-quests:quests.role-bonus-percent > 0
+    text: |
+      A quest for your own role pays {setting:jobs-quests:quests.role-bonus-percent|percent} more.
+  - question: Can I swap a quest?
+    title: Swapping
+    when: jobs-quests:quests.free-rerolls > 0
+    text: |
+      You may swap <white>{setting:jobs-quests:quests.free-rerolls|count}</white> quest(s) a day for another of the same kind, free — only one you have not begun. Click the quest in {cmd:/quests}.
+  - question: How much do they pay?
+    title: Pay
+    text: |
+      The pay is shown on every quest and scaled by {setting:jobs-quests:quests.pay-scale-percent|percent} on this server. If a payment cannot be made right now it is kept and paid later.

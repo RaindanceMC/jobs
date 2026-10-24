@@ -1,0 +1,36 @@
+id: jobs-orders
+title: Orders (work on demand)
+summary: "Name an amount, get work to earn it against the clock: harder work and tighter time for more."
+intro: |
+  Ask for money and I will give you work. Ask for a lot and I will give you very little time.
+icon: CLOCK
+category: Progress & rewards
+order: 22
+module: jobs
+when: jobs-orders:orders.enabled
+permission: rainsjobs.use
+aliases: [order, orders, ask, work]
+keywords: [cancel, clock, offers, reroll, amount, pace, time]
+commands: [quests]
+related: [jobs-quests, jobs]
+sections:
+  - question: How do I ask for work?
+    title: Asking
+    text: |
+      {cmd:/quests ask <amount> [time]}, for example {cmd:/quests ask 50k 30m}, or open {run:/quests ask} and use the screen. Amounts like 5000, 2.5k or 100m work. You pick the time on a screen unless you gave it. The smallest order is <white>{setting:jobs-orders:orders.least|money}</white>, the largest <white>{setting:jobs-orders:orders.hardest-at|money}</white>.
+  - question: What do I get offered?
+    title: Offers
+    text: |
+      <white>{setting:jobs-orders:orders.choices|count}</white> different jobs, all paying your amount; you take one. Not happy? Ask for other offers up to <white>{setting:jobs-orders:orders.rerolls-per-day|count}</white> time(s) a day.
+  - question: How hard is it?
+    title: Difficulty
+    text: |
+      The more you ask, the harder the work and the tighter the clock. Up to {setting:jobs-orders:orders.easy-up-to|money} the work is easy and the clock generous; past {setting:jobs-orders:orders.steep-from|money} it gets harder and the clock tighter faster; at {setting:jobs-orders:orders.hardest-at|money} the work is the hardest there is.
+  - question: How many orders may I take?
+    title: Per day
+    text: |
+      <white>{setting:jobs-orders:orders.per-day|count}</white> a day, done or not. Only one at a time: a bar shows your progress and what time is left. Give up with {cmd:/quests cancel} — nothing is paid and it still counts as one of today's.
+  - question: What if I fail?
+    title: Failing
+    text: |
+      Time up means nothing is paid. Finishing with time to spare pays the full amount (and says how much time was left). If orders get switched off while you are on one, it is called off, unpaid.

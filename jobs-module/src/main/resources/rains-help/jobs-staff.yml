@@ -1,0 +1,25 @@
+id: jobs-staff
+title: Jobs administration
+summary: "Put up and end goals, give or reset quests, reload the goal, quest and order files."
+intro: |
+  The board is yours to arrange.
+icon: COMMAND_BLOCK
+category: Staff
+order: 20
+module: jobs
+permission: rainsjobs.admin
+keywords: [goals, jobs.yml, quests.yml, orders.yml, reload, give, reset]
+related: [jobs]
+sections:
+  - question: How do I manage goals?
+    title: Goals
+    text: |
+      {cmd:/jobs list} lists them with numbers. {cmd:/jobs end <number>} ends one (helpers are paid for the part reached). {cmd:/jobs new [kind]} puts up a goal kind that is not already up. {cmd:/jobs reload} reads jobs.yml again and lists problems. Kinds live in jobs.yml (title, deliver or fish, items, start, least, most, days); delete the file to get the shipped ones back.
+  - question: How do I manage quests?
+    title: Quests
+    text: |
+      {cmd:/quests give <player> <quest>} gives a quest, {cmd:/quests reset <player>} gives new quests for today, {cmd:/quests reload} reads quests.yml and orders.yml again.
+  - question: Which settings are there?
+    title: Settings
+    text: |
+      Three pages in /settings: jobs (board), orders and quests. Goals on the board: {setting:jobs:active-goals|count}; goal pay scale {setting:jobs:goals.pay-scale-percent|percent}; quest pay scale {setting:jobs-quests:quests.pay-scale-percent|percent}; orders {setting:jobs-orders:orders.enabled|onoff}.

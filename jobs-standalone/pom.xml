@@ -30,7 +30,7 @@
         <!-- 0.9.2: the minute tick (goals, quests, orders: paying what is owed, writing the books) runs off the server thread. -->
         <!-- 0.9.3: a quest or order is paid or failed only from the state the decision was made on — a payment another server made meanwhile is never made again (found by CI on PostgreSQL). -->
         <!-- 0.9.5: a quest finished on a block break is written and paid off the server thread. -->
-        <plugin.version>0.9.5</plugin.version>
+        <plugin.version>0.10.0</plugin.version>
     </properties>
 
     <dependencies>
