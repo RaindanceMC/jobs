@@ -46,6 +46,13 @@ final class TwoServers implements AutoCloseable {
         return book;
     }
 
+    /** A server that never hears what the others announce: its view is out of date for as long as it likes. */
+    OrderBook ordersDeaf() {
+        OrderBook book = new OrderBook(database());
+        book.load();
+        return book;
+    }
+
     /** Until every server has heard everything published so far. */
     void settle() {
         hub.drain();

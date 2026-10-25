@@ -1,5 +1,6 @@
 package de.raindancer.modules.jobs.screen;
 
+import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.social.economy.Fees;
 import de.raindancer.core.social.economy.Money;
 import de.raindancer.core.ui.menu.Icons;
@@ -52,12 +53,17 @@ public final class OrderScreens extends PaginatedMenu<OrderService.Offer> implem
             services.messages().send(viewer, "jobs.order.unreadable", "text", typed);
             return;
         }
-        java.util.Optional<OrderService.Answer> refused = services.orders().refusal(viewer.getUniqueId(), asked);
-        if (refused.isPresent()) {
-            services.messages().send(viewer, refused.get().refusal(), "amount", Fees.format(refused.get().amount()));
-            return;
-        }
-        new TimeChoice(services, viewer, parent, typed).open();
+        // The ledger may have to be read from the database: not on the server's threads.
+        Scheduling.async(services.plugin(), () -> {
+            java.util.Optional<OrderService.Answer> refused = services.orders().refusal(viewer.getUniqueId(), asked);
+            Scheduling.entity(services.plugin(), viewer, () -> {
+                if (refused.isPresent()) {
+                    services.messages().send(viewer, refused.get().refusal(), "amount", Fees.format(refused.get().amount()));
+                    return;
+                }
+                new TimeChoice(services, viewer, parent, typed).open();
+            });
+        });
     }
 
     /** The offers for an amount and a time (null: the work decides), or a line saying why there are none. */
@@ -67,13 +73,18 @@ public final class OrderScreens extends PaginatedMenu<OrderService.Offer> implem
             services.messages().send(viewer, "jobs.order.unreadable", "text", typed);
             return;
         }
-        OrderService.Answer answer = services.orders().ask(viewer.getUniqueId(), asked, time);
-        if (answer.offers().isEmpty()) {
-            viewer.closeInventory();
-            services.messages().send(viewer, answer.refusal(), "amount", Fees.format(answer.amount()));
-            return;
-        }
-        new OrderScreens(services, viewer, parent, answer.offers(), typed, time).open();
+        // Making an offer writes the ledger: off the server's threads.
+        Scheduling.async(services.plugin(), () -> {
+            OrderService.Answer answer = services.orders().ask(viewer.getUniqueId(), asked, time);
+            Scheduling.entity(services.plugin(), viewer, () -> {
+                if (answer.offers().isEmpty()) {
+                    viewer.closeInventory();
+                    services.messages().send(viewer, answer.refusal(), "amount", Fees.format(answer.amount()));
+                    return;
+                }
+                new OrderScreens(services, viewer, parent, answer.offers(), typed, time).open();
+            });
+        });
     }
 
     /** How long somebody wants to work for it. */
@@ -185,9 +196,11 @@ public final class OrderScreens extends PaginatedMenu<OrderService.Offer> implem
 
     @Override
     protected void onClick(OrderService.Offer offer, InventoryClickEvent event) {
-        if (services.orders().accept(viewer, offer)) {
-            viewer.closeInventory();
-        }
+        Scheduling.async(services.plugin(), () -> {
+            if (services.orders().accept(viewer, offer)) {
+                Scheduling.entity(services.plugin(), viewer, viewer::closeInventory);
+            }
+        });
     }
 
     @Override

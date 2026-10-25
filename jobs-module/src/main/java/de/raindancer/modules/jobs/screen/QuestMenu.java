@@ -1,5 +1,6 @@
 package de.raindancer.modules.jobs.screen;
 
+import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.social.economy.Economies;
 import de.raindancer.core.social.economy.Money;
 import de.raindancer.core.social.roles.PlayerRoles;
@@ -55,9 +56,9 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
      * them to the database; the menu itself then only reads them.
      */
     public static void show(JobsServices services, Player viewer, Menu parent) {
-        de.raindancer.core.platform.util.Scheduling.async(services.plugin(), () -> {
+        Scheduling.async(services.plugin(), () -> {
             services.quests().today(viewer.getUniqueId());
-            de.raindancer.core.platform.util.Scheduling.entity(services.plugin(), viewer,
+            Scheduling.entity(services.plugin(), viewer,
                     () -> new QuestMenu(services, viewer, parent).open());
         });
     }
@@ -107,12 +108,15 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
                         "", "<red>Click<gray> to give it up"), click -> new de.raindancer.core.ui.menu.ConfirmMenu(
                         viewer, services.brand(), this, "<dark_gray>Give the order up?",
                         List.of("<gray>Nothing is paid, and it counts as one of today's orders."),
-                        () -> {
-                            if (services.orders().cancel(viewer)) {
-                                services.messages().send(viewer, "jobs.order.cancelled");
-                            }
-                            open();
-                        }).open());
+                        () -> Scheduling.async(services.plugin(), () -> {
+                            boolean cancelled = services.orders().cancel(viewer);
+                            Scheduling.entity(services.plugin(), viewer, () -> {
+                                if (cancelled) {
+                                    services.messages().send(viewer, "jobs.order.cancelled");
+                                }
+                                open();
+                            });
+                        })).open());
             } else {
                 toolbar(2, Icons.of(Material.CLOCK, "<gold>Ask for work",
                         "<gray>Name what you want to earn and get",
@@ -179,11 +183,13 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
                 List.of("<white>" + MINI.escapeTags(title), "<gray>For another of the same kind, at your tier.",
                         "<gray>Free swaps left today: <white>" + services.quests().rerollsLeft(viewer.getUniqueId())),
                 "<dark_gray>The quest you swap away is gone for today.",
-                () -> {
-                    services.messages().send(viewer, services.quests().reroll(viewer.getUniqueId(), index)
-                            ? "jobs.quest.swapped" : "jobs.quest.not-swapped");
-                    open();
-                }).open();
+                () -> Scheduling.async(services.plugin(), () -> {
+                    boolean swapped = services.quests().reroll(viewer.getUniqueId(), index);
+                    Scheduling.entity(services.plugin(), viewer, () -> {
+                        services.messages().send(viewer, swapped ? "jobs.quest.swapped" : "jobs.quest.not-swapped");
+                        open();
+                    });
+                })).open();
     }
 
     private static String bar(int progress, int amount) {

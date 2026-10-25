@@ -74,6 +74,12 @@ public final class OrderService {
     private final Map<UUID, java.util.List<Offer>> offered = new ConcurrentHashMap<>();
     private final Notices notices;
     private volatile OrderSettings settings;
+    /** Where a finished order is written and paid: database work, so off the server's threads when running. */
+    private volatile java.util.concurrent.Executor finishing = Runnable::run;
+    /** Runs a task on the player's own thread; inline until the module says how. */
+    private volatile java.util.function.BiConsumer<Player, Runnable> onPlayer = (player, task) -> task.run();
+    /** Players whose finished order is handed to {@link #finishing} and not paid yet. */
+    private final Set<UUID> paying = ConcurrentHashMap.newKeySet();
 
     public OrderService(Server server, WorkCatalogue works, OrderBook book, Messages messages, LogChannel log,
                         LongSupplier clock, ZoneId zone, Random random, OrderSettings settings) {
@@ -87,6 +93,15 @@ public final class OrderService {
         this.random = random;
         this.notices = new Notices(server, messages);
         settings(settings);
+    }
+
+    /**
+     * Says where database work goes ({@code database}: off the server's threads) and how to reach a player's own
+     * thread ({@code onPlayer}), for what touches them.
+     */
+    public void threads(java.util.concurrent.Executor database, java.util.function.BiConsumer<Player, Runnable> onPlayer) {
+        this.finishing = database == null ? Runnable::run : database;
+        this.onPlayer = onPlayer == null ? (player, task) -> task.run() : onPlayer;
     }
 
     public Notices notices() {
@@ -288,7 +303,7 @@ public final class OrderService {
         if (!book.putNow(id, ledger, ledger.with(ledger.order().in(Order.State.FAILED)))) {
             return false;
         }
-        hide(player);
+        onPlayer.accept(player, () -> hide(player));
         return true;
     }
 
@@ -315,17 +330,38 @@ public final class OrderService {
             book.put(id, held.get().with(moved));
             return;
         }
-        OrderBook.Ledger paid = held.get().with(moved.in(Order.State.PAID));
-        if (!book.putNow(id, held.get(), paid)) {
+        if (!paying.add(id)) {
+            return;
+        }
+        OrderBook.Ledger snapshot = held.get();
+        try {
+            finishing.execute(() -> {
+                try {
+                    payOut(player, snapshot, order, moved);
+                } finally {
+                    paying.remove(id);
+                }
+            });
+        } catch (RuntimeException refused) {
+            // Shutting down: the order stays open and done, and is handed over again on the next progress.
+            paying.remove(id);
+        }
+    }
+
+    /** Marks a finished order paid, then pays it — only for the write that moved it off OPEN. */
+    private synchronized void payOut(Player player, OrderBook.Ledger held, Order order, Order moved) {
+        UUID id = player.getUniqueId();
+        OrderBook.Ledger paid = held.with(moved.in(Order.State.PAID));
+        if (!book.putNow(id, held, paid)) {
             // Lost to another server that paid it: nothing left to count. Otherwise counted on, to try again.
             book.refresh(id);
             if (book.of(id).flatMap(OrderBook.Ledger::current).filter(each -> running(each) && each.startedAt() == order.startedAt()).isPresent()) {
-                book.put(id, held.get().with(moved));
+                book.put(id, held.with(moved));
                 messages.send(player, "jobs.order.not-saved");
             }
             return;
         }
-        hide(player);
+        onPlayer.accept(player, () -> hide(player));
         EconomyResult result = pay(id, order.pay(), "Order: " + order.says());
         if (result.succeeded()) {
             messages.send(player, "jobs.order.done", "work", order.says(), "amount", Fees.format(result.amount()),

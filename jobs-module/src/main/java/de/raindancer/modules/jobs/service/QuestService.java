@@ -255,10 +255,28 @@ public final class QuestService {
     // ---------------------------------------------------------------------------- doing them
 
     /** Something done that may count: {@code thing} is the block, mob or fish, by its upper-case name. */
-    public synchronized void progress(Player player, QuestTask task, String thing, int count) {
+    public void progress(Player player, QuestTask task, String thing, int count) {
         if (count <= 0 || !settings.enabled()) {
             return;
         }
+        UUID id = player.getUniqueId();
+        String today = todayDate().toString();
+        if (book.of(id).filter(held -> held.day().equals(today)).isEmpty()) {
+            // A new day (or the first): handing out its quests writes them, so not here.
+            try {
+                finishing.execute(() -> {
+                    today(id);
+                    count(player, task, thing, count);
+                });
+            } catch (RuntimeException refused) {
+                // Shutting down: this one is not counted.
+            }
+            return;
+        }
+        count(player, task, thing, count);
+    }
+
+    private synchronized void count(Player player, QuestTask task, String thing, int count) {
         UUID id = player.getUniqueId();
         QuestDay day = today(id);
         for (int i = 0; i < day.quests().size(); i++) {

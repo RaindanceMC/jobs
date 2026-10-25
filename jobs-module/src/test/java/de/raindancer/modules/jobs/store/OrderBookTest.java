@@ -99,9 +99,9 @@ class OrderBookTest {
     @DisplayName("taking an order on a stale view is refused: the ledger it was made from has moved on")
     void staleReplacement() {
         OrderBook smp = servers.orders("smp");
-        OrderBook arena = servers.orders("arena");
+        // Deaf, so that the announcement of smp's write cannot reach it before it acts on its stale view.
+        OrderBook arena = servers.ordersDeaf();
         smp.putNow(ana, new OrderBook.Ledger("2026-10-10", 0, 0, true, null));
-        servers.settle();
         arena.of(ana);
         assertThat(smp.putNow(ana, ledger(0, Order.State.OPEN))).isTrue();
         assertThat(arena.putNow(ana, new OrderBook.Ledger("2026-10-10", 1, 0, false,
