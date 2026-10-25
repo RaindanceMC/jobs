@@ -34,7 +34,7 @@ import java.util.List;
  */
 public final class JobsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("jobs", "Jobs", "0.10.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("jobs", "Jobs", "0.11.0")
             .describedAs("The job board — goals everybody delivers or fishes towards, paid by their share — personal daily quests, harder and better paid the richer you are, and orders: name what you want to earn and race the clock")
             .by("Raindancer118");
 
@@ -142,6 +142,17 @@ public final class JobsModule implements FlexModule {
                 context.log(), System::currentTimeMillis, java.time.ZoneId.systemDefault(), new SecureRandom(),
                 orderSettings.current());
         context.closeWith(orders.notices().network(context.core().bus(), context.core()::networkPlayers));
+        // Screens for /screen — Core 2.10.0; on an older Core there are simply none.
+        try {
+            var screens = context.core().screens();
+            if (screens != null) {
+                new de.raindancer.modules.jobs.service.JobScreens(quests, questBook, orders, goals,
+                        System::currentTimeMillis).register(screens, context.plugin());
+                context.closeWith(() -> de.raindancer.modules.jobs.service.JobScreens.KINDS.forEach(screens::unregister));
+            }
+        } catch (LinkageError olderCore) {
+            context.log().info("RainsCore is older than 2.10.0: no job screens until it is updated.");
+        }
         orderSettings.onChange(orders::settings);
         JobsServices services = new JobsServices(context.plugin(), context.plugin().getServer(), context.core(),
                 context.log(), context.core().messages(), context.chat().brand(), settings::current, goals, quests,
