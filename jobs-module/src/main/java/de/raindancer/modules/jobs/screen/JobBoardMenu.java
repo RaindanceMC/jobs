@@ -74,7 +74,7 @@ public final class JobBoardMenu extends PaginatedMenu<Goal> implements IJobsScre
         if (services.quests().settings().enabled()) {
             toolbar(6, Icons.of(Material.WRITABLE_BOOK, "<white>Your quests", "<gray>Personal quests for today,",
                     "<gray>paid as soon as each is done.", "<yellow>Click<gray> to open"),
-                    click -> new QuestMenu(services, viewer, this).open());
+                    click -> QuestMenu.show(services, viewer, this));
         }
     }
 

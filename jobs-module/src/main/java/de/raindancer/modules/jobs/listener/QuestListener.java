@@ -165,12 +165,16 @@ public final class QuestListener implements IJobsListener {
                     || !player.hasPermission(PermissionNodes.USE)) {
                 return;
             }
-            long open = services.quests().today(player.getUniqueId()).quests().stream()
-                    .filter(quest -> quest.open() && !quest.done()).count();
-            if (open > 0) {
-                services.messages().send(player, "jobs.quest.waiting", "count", String.valueOf(open),
-                        "tier", String.valueOf(services.quests().today(player.getUniqueId()).tier()));
-            }
+            // Handing out today's quests writes them to the database: off the server's threads, then the greeting.
+            de.raindancer.core.platform.util.Scheduling.async(services.plugin(), () -> {
+                de.raindancer.modules.jobs.model.QuestDay day = services.quests().today(player.getUniqueId());
+                long open = day.quests().stream().filter(quest -> quest.open() && !quest.done()).count();
+                if (open > 0) {
+                    de.raindancer.core.platform.util.Scheduling.entity(services.plugin(), player, () -> services.messages()
+                            .send(player, "jobs.quest.waiting", "count", String.valueOf(open),
+                                    "tier", String.valueOf(day.tier())));
+                }
+            });
         });
     }
 

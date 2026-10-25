@@ -37,7 +37,7 @@ public final class QuestsCommand implements IJobsCommand {
             } else if (!live.quests().settings().enabled()) {
                 live.messages().send(sender, "jobs.quest.switched-off");
             } else {
-                new QuestMenu(live, player, null).open();
+                QuestMenu.show(live, player, null);
             }
             return;
         }

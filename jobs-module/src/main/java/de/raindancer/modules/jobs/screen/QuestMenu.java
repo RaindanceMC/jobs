@@ -50,6 +50,18 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
         return "Quests";
     }
 
+    /**
+     * Opens the menu once today's quests are handed out — off the server's threads, since handing them out writes
+     * them to the database; the menu itself then only reads them.
+     */
+    public static void show(JobsServices services, Player viewer, Menu parent) {
+        de.raindancer.core.platform.util.Scheduling.async(services.plugin(), () -> {
+            services.quests().today(viewer.getUniqueId());
+            de.raindancer.core.platform.util.Scheduling.entity(services.plugin(), viewer,
+                    () -> new QuestMenu(services, viewer, parent).open());
+        });
+    }
+
     @Override
     protected List<Quest> entries() {
         return services.quests().today(viewer.getUniqueId()).quests();
