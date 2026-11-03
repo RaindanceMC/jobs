@@ -34,7 +34,7 @@ import java.util.List;
  */
 public final class JobsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("jobs", "Jobs", "0.11.2")
+    private static final ModuleInfo INFO = ModuleInfo.of("jobs", "Jobs", "0.12.0")
             .describedAs("The job board — goals everybody delivers or fishes towards, paid by their share — personal daily quests, harder and better paid the richer you are, and orders: name what you want to earn and race the clock")
             .by("Raindancer118");
 
@@ -162,6 +162,8 @@ public final class JobsModule implements FlexModule {
         context.closeWith(() -> PlacedBlocks.unwatch(watched));
         QuestListener questListener = new QuestListener(services);
         context.listener(questListener);
+        Object listening = de.raindancer.core.world.activity.Activities.listen(context.plugin(), questListener::heard);
+        context.closeWith(() -> de.raindancer.core.world.activity.Activities.stop(listening));
         var travel = Scheduling.globalTimer(context.plugin(), 20L * 10, 20L * 10, task -> {
             for (org.bukkit.entity.Player online : context.plugin().getServer().getOnlinePlayers()) {
                 Scheduling.entity(context.plugin(), online, () -> questListener.sample(online));

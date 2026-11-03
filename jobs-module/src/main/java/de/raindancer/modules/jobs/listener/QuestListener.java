@@ -1,6 +1,7 @@
 package de.raindancer.modules.jobs.listener;
 
 import de.raindancer.core.social.presence.Away;
+import de.raindancer.core.world.activity.Activity;
 import de.raindancer.core.world.blocks.PlacedBlocks;
 import de.raindancer.modules.jobs.JobsServices;
 import de.raindancer.modules.jobs.model.QuestTask;
@@ -8,26 +9,26 @@ import de.raindancer.modules.jobs.util.PermissionNodes;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.Ageable;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Counts what players do towards their quests and orders: blocks, crops, kills, catches, breeding, distance, crafting, smelting, enchanting and trading. */
+/**
+ * Counts what players do towards their quests and orders. Crops, catches, breeding, enchanting and trading come from
+ * Core's Activities ({@link #heard}); blocks, kills, distance, crafting and smelting are counted here.
+ */
 public final class QuestListener implements IJobsListener {
 
     /** Further than this between two samples is a teleport, not a journey. */
@@ -57,12 +58,45 @@ public final class QuestListener implements IJobsListener {
             return;
         }
         Block block = event.getBlock();
-        String type = block.getType().name();
-        if (block.getBlockData() instanceof Ageable crop && crop.getAge() >= crop.getMaximumAge()) {
-            count(player, QuestTask.HARVEST, type, 1);
-        }
         if (PlacedBlocks.watching(block.getType()) && !PlacedBlocks.isPlaced(block)) {
-            count(player, QuestTask.MINE, type, 1);
+            count(player, QuestTask.MINE, block.getType().name(), 1);
+        }
+    }
+
+    /** One count towards quests and orders. */
+    public record Counted(QuestTask task, String thing, int count) {
+    }
+
+    /**
+     * What Core's Activities heard, as quests count it. Mining stays the module's own — a quest may ask for logs or
+     * stone, Core only tells ores — and so do kills, which count animals too.
+     */
+    public static List<Counted> toQuests(Activity activity) {
+        String what = activity.what();
+        return switch (activity.kind()) {
+            case HARVEST -> List.of(new Counted(QuestTask.HARVEST, what, 1));
+            case FISH -> List.of(new Counted(QuestTask.FISH, what, 1));
+            case BREED -> List.of(new Counted(QuestTask.BREED, what, 1));
+            case TRADE -> List.of(new Counted(QuestTask.TRADE, what, 1));
+            case ENCHANT -> cost(what) >= 30
+                    ? List.of(new Counted(QuestTask.ENCHANT, "ANY", 1), new Counted(QuestTask.ENCHANT, "LEVEL_30", 1))
+                    : List.of(new Counted(QuestTask.ENCHANT, "ANY", 1));
+            default -> List.of();
+        };
+    }
+
+    private static int cost(String levels) {
+        try {
+            return Integer.parseInt(levels);
+        } catch (NumberFormatException unknown) {
+            return 0;
+        }
+    }
+
+    /** Handed to {@code Activities.listen}. */
+    public void heard(Player player, Activity activity) {
+        if (playing(player)) {
+            toQuests(activity).forEach(each -> count(player, each.task(), each.thing(), each.count()));
         }
     }
 
@@ -74,27 +108,6 @@ public final class QuestListener implements IJobsListener {
             return;
         }
         count(killer, QuestTask.KILL, dead.getType().name(), 1);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFish(PlayerFishEvent event) {
-        if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH && event.getCaught() instanceof Item item
-                && playing(event.getPlayer())) {
-            count(event.getPlayer(), QuestTask.FISH, item.getItemStack().getType().name(),
-                    item.getItemStack().getAmount());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBreed(EntityBreedEvent event) {
-        // Parents bought as eggs could be bred without end; only animals raised the slow way count.
-        if (FARMED.contains(event.getMother().getEntitySpawnReason())
-                || FARMED.contains(event.getFather().getEntitySpawnReason())) {
-            return;
-        }
-        if (event.getBreeder() instanceof Player player && playing(player)) {
-            count(player, QuestTask.BREED, event.getEntity().getType().name(), 1);
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -129,25 +142,6 @@ public final class QuestListener implements IJobsListener {
     public void onSmelt(org.bukkit.event.inventory.FurnaceExtractEvent event) {
         if (playing(event.getPlayer()) && event.getItemAmount() > 0) {
             count(event.getPlayer(), QuestTask.SMELT, event.getItemType().name(), event.getItemAmount());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEnchant(org.bukkit.event.enchantment.EnchantItemEvent event) {
-        Player player = event.getEnchanter();
-        if (!playing(player)) {
-            return;
-        }
-        count(player, QuestTask.ENCHANT, "ANY", 1);
-        if (event.getExpLevelCost() >= 30) {
-            count(player, QuestTask.ENCHANT, "LEVEL_30", 1);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTrade(io.papermc.paper.event.player.PlayerTradeEvent event) {
-        if (playing(event.getPlayer())) {
-            count(event.getPlayer(), QuestTask.TRADE, event.getTrade().getResult().getType().name(), 1);
         }
     }
 
