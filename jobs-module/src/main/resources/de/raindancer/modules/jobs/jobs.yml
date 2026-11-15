@@ -3,12 +3,12 @@
 # lot to somebody poor and little to somebody rich. A goal missed pays for the part that was reached.
 #
 #   title   what the board calls it
-#   kind    deliver — items handed in at the board (the shop stops selling them while the goal runs)
-#           fish    — fish caught with a rod; every catch counts
+#   kind    deliver: items handed in at the board (the shop stops selling them while the goal runs)
+#           fish: fish caught with a rod, every catch counts
 #   icon    the item shown for it
 #   items   what counts: items by name, * for anything ("*_log"), whole shop drawers (food), "!" leaves one out
 #   start   how big the first one is
-#   least   / most — the smallest and largest it may learn to be
+#   least / most: the smallest and largest it may learn to be
 #   days    how long one runs
 #
 # Each kind learns: reached on day one, the next is up to twice as big; missed, it shrinks to what was

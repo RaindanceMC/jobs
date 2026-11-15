@@ -25,7 +25,7 @@ public record OrderSettings(
         @Key("orders.per-day") int perDay,
 
         @In("orders") @Title("Offers to pick from") @Range(min = 1, max = 9)
-        @Describe("Different work offered for one amount — all paying it; the player takes one.")
+        @Describe("Different work offered for one amount, all paying it. The player takes one.")
         @Key("orders.choices") int choices,
 
         @In("orders") @Title("Other offers, a day") @Range(min = 0, max = 50)
@@ -40,7 +40,7 @@ public record OrderSettings(
         @Key("orders.easy-up-to") String easyUpTo,
 
         @In("orders") @Title("Hardest at")
-        @Describe("At this the work is the hardest there is and the time a joke. Also the most anybody may ask for.")
+        @Describe("At this the work is the hardest there is and the time is shortest. Also the most anybody may ask for.")
         @Key("orders.hardest-at") String hardestAt,
 
         @In("orders") @Title("Gets harder from")
@@ -56,7 +56,7 @@ public record OrderSettings(
         @Key("orders.pace.easiest") double paceEasiest,
 
         @In("orders") @Title("Pace asked for at the hardest")
-        @Describe("Of a skilled player's pace: 750 is seven hundred and fifty times faster than anybody can.")
+        @Describe("Of a skilled player's pace: 750 means 750 times faster than anybody can work.")
         @Key("orders.pace.hardest") double paceHardest) {
 
     public static final OrderSettings DEFAULTS = new OrderSettings(true, 3, 4, 5, "100", "1000", "100000000000", "1000000", 1.4, 0.15, 750);

@@ -120,10 +120,10 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
             } else {
                 toolbar(2, Icons.of(Material.CLOCK, "<gold>Ask for work",
                         "<gray>Name what you want to earn and get",
-                        "<gray>work to match — and a clock.",
+                        "<gray>work to match, with a clock.",
                         "<gray>The more you ask, the harder it gets:",
-                        "<dark_gray>a thousand is an afternoon of zombies;",
-                        "<dark_gray>a hundred million is Wardens, fast.",
+                        "<dark_gray>small amounts get easy work,",
+                        "<dark_gray>large ones get hard work and little time.",
                         "", "<yellow>Click<gray> to name an amount"),
                         click -> OrderScreens.ask(services, viewer, this));
             }
@@ -152,12 +152,12 @@ public final class QuestMenu extends PaginatedMenu<Quest> implements IJobsScreen
         lore.add("");
         lore.add(switch (quest.state()) {
             case PAID -> "<green>✔ Done and paid";
-            case OWED -> "<yellow>Done — paid as soon as the treasury can";
+            case OWED -> "<yellow>Done, paid as soon as the treasury can";
             case OPEN -> "<dark_gray>Counts as you play.";
         });
         if (swappable(quest)) {
             int left = services.quests().rerollsLeft(viewer.getUniqueId());
-            lore.add("<yellow>Click<gray> to swap it for another — free, " + left + " left today");
+            lore.add("<yellow>Click<gray> to swap it for another, free, " + left + " left today");
         }
         Material icon = found.map(template -> Material.matchMaterial(template.icon())).filter(Material::isItem)
                 .orElse(Material.PAPER);

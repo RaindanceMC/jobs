@@ -129,7 +129,7 @@ public final class OrderScreens extends PaginatedMenu<OrderService.Offer> implem
                     ? Icons.of(Material.COMPASS, "<gold>Let the work decide", "<gray>Each offer comes with the time",
                     "<gray>its work takes at the order's pace.")
                     : Icons.of(Material.CLOCK, "<gold>" + Times.describe(time), "<gray>Work that fits this time.",
-                    "<dark_gray>Less time is not less work —", "<dark_gray>more time is more work, same pay.");
+                    "<dark_gray>Less time is not less work.", "<dark_gray>More time is more work, same pay.");
         }
 
         @Override
@@ -191,7 +191,7 @@ public final class OrderScreens extends PaginatedMenu<OrderService.Offer> implem
                 "<gold>" + MINI.escapeTags(offer.says()),
                 "<gray>Time: <white>" + Times.describe(offer.time()),
                 "<gray>Pays: <white>" + MINI.escapeTags(Fees.format(offer.pay())) + " <gray>if done in time",
-                "", "<yellow>Click<gray> to take it — the clock starts at once");
+                "", "<yellow>Click<gray> to take it. The clock starts at once");
     }
 
     @Override

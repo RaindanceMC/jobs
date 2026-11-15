@@ -373,7 +373,7 @@ public final class OrderService {
             log.error("{} was not paid for an order and it could not be recorded as owed: it is lost unless paid by hand.",
                     player.getName());
         }
-        log.warn("{} could not be paid for an order: {} — kept as owed.", player.getName(), result.outcome());
+        log.warn("{} could not be paid for an order: {}. Kept as owed.", player.getName(), result.outcome());
         messages.send(player, "jobs.order.owed", "work", order.says(), "amount", Fees.format(order.pay()));
     }
 

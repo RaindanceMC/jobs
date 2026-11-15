@@ -93,7 +93,7 @@ public final class JobBoardMenu extends PaginatedMenu<Goal> implements IJobsScre
             int percent = (int) Math.round(mine * 100.0 / Math.max(1, goal.progress()));
             Optional<Money> now = services.goals().estimate(goal, viewer.getUniqueId());
             lore.add("<aqua>You gave " + mine + " (" + percent + "%)"
-                    + now.map(money -> " — about " + money(money) + " if it ended now").orElse(""));
+                    + now.map(money -> ", about " + money(money) + " if it ended now").orElse(""));
         }
         List<Map.Entry<java.util.UUID, Integer>> leaders = goal.leaders(3);
         if (!leaders.isEmpty()) {
@@ -106,7 +106,7 @@ public final class JobBoardMenu extends PaginatedMenu<Goal> implements IJobsScre
             lore.add(carrying > 0 ? "<yellow>Click<gray> to hand in what you carry (" + Math.min(carrying, goal.left()) + ")"
                     : "<dark_gray>You carry none of it.");
         } else {
-            lore.add("<gray>Fish with a rod — every catch counts.");
+            lore.add("<gray>Fish with a rod. Every catch counts.");
         }
         return Icons.of(services.goals().iconOf(goal), "<gold>" + MINI.escapeTags(goal.title()), lore);
     }

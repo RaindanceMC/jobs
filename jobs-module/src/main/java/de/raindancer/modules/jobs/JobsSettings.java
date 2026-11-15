@@ -37,7 +37,7 @@ public record JobsSettings(
         @Key("most-reward") String mostReward,
 
         @In("jobs") @Title("Stop the shop selling what is collected")
-        @Describe("While a goal collects cod, the shop sells no cod — otherwise cod bought from the shop could "
+        @Describe("While a goal collects cod, the shop sells no cod. Otherwise cod bought from the shop could "
                 + "be handed straight in for the reward.")
         @Key("stop-sales") boolean stopSales,
 

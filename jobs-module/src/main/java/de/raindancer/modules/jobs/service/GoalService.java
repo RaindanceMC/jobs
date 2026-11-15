@@ -249,7 +249,7 @@ public final class GoalService implements IJobsService, SaleStop {
         boolean later = result.outcome() == EconomyResult.Outcome.TREASURY_EMPTY
                 || result.outcome() == EconomyResult.Outcome.UNAVAILABLE;
         log.warn("{} could not be paid for goal {}: {}{}", player, title, result.outcome(),
-                later ? " — kept as owed, retried every minute" : "");
+                later ? ", kept as owed and retried every minute" : "");
         if (!later) {
             return false;
         }

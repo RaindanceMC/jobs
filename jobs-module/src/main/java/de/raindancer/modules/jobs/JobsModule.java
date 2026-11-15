@@ -35,7 +35,7 @@ import java.util.List;
 public final class JobsModule implements FlexModule {
 
     private static final ModuleInfo INFO = ModuleInfo.of("jobs", "Jobs", "0.12.0")
-            .describedAs("The job board — goals everybody delivers or fishes towards, paid by their share — personal daily quests, harder and better paid the richer you are, and orders: name what you want to earn and race the clock")
+            .describedAs("The job board with goals everybody delivers or fishes towards, paid by their share. Personal daily quests, harder and better paid the richer you are. Orders: name what you want to earn and race the clock")
             .by("Raindancer118");
 
     private GoalService goals;
@@ -98,8 +98,8 @@ public final class JobsModule implements FlexModule {
         book.load();
         context.closeWith(book.connect(context.core().bus()));
         if (!book.readable()) {
-            context.log().error("The jobs database could not be read. The board is held as it is until it can be — "
-                    + "saving now would lose every goal and everything handed in.");
+            context.log().error("The jobs database could not be read. The board is held as it is until it can be read. "
+                    + "Saving now would lose every goal and everything handed in.");
         }
 
         goals = new GoalService(context.plugin().getServer(), templates, book, context.core().messages(),
@@ -118,7 +118,7 @@ public final class JobsModule implements FlexModule {
         context.closeWith(questBook.connect(context.core().bus()));
         if (!questBook.readable()) {
             context.log().error("The jobs database could not be read. Quests are counted but nothing is saved or paid "
-                    + "until it can be — saving now would lose everybody's progress.");
+                    + "until it can be read. Saving now would lose everybody's progress.");
         }
         quests = new QuestService(context.plugin().getServer(), questCatalogue, questBook, context.core().messages(),
                 context.log(), System::currentTimeMillis, java.time.ZoneId.systemDefault(), new SecureRandom(),

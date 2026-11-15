@@ -1,14 +1,14 @@
 # The work an order can turn into. /quests → Ask for work: a player names an amount, and gets work as hard as
-# that amount — the more they ask, the harder the work, the more of it and the less time. A hundred million is
+# that amount. The more they ask, the harder the work, the more of it and the less time. A hundred million is
 # about a hundred Wardens in half an hour; a hundred billion is hundreds of Ender Dragons in minutes.
 #
 #   name      what the units are called, plural ("Wardens", "blocks of stone")
-#   task      mine, harvest, kill, fish, breed, travel, craft, smelt, enchant or trade — as for quests (quests.yml)
+#   task      mine, harvest, kill, fish, breed, travel, craft, smelt, enchant or trade, as for quests (quests.yml)
 #   things    what counts; * for anything, "!" leaves one out
 #   value     what one is worth in the easiest order; harder orders pay up to 100,000 times as much per unit
 #   rate      how many a skilled player manages in an hour; the time allowed is worked out from it
 #   hardness  0 for the easiest work, 1 for the hardest: an order picks work about as hard as its amount
-#   most-per-unit  the most one unit may ever be worth — for work whose inputs the shop sells (crafting,
+#   most-per-unit  the most one unit may ever be worth, for work whose inputs the shop sells (crafting,
 #             smelting, enchanting, trading): kept under what they cost, so buying them in never pays
 #   icon      the item shown for it
 #

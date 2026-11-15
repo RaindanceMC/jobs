@@ -59,7 +59,7 @@ public final class JobScreens {
         Optional<QuestDay> day = questBook.of(viewer.id()).filter(held -> held.day().equals(today));
         StringBuilder text = new StringBuilder("<gold><bold>Your quests today</bold></gold>");
         if (day.isEmpty() || day.get().quests().isEmpty()) {
-            return MINI.deserialize(text + "\n<gray>None yet — <white>/quests");
+            return MINI.deserialize(text + "\n<gray>None yet. <white>/quests");
         }
         for (Quest quest : day.get().quests()) {
             String title = quests.template(quest).map(QuestTemplate::title).orElse(quest.template());
@@ -72,7 +72,7 @@ public final class JobScreens {
     private Component order(ScreenKind.Viewer viewer) {
         Optional<Order> current = orders.current(viewer.id()).filter(order -> order.state() == Order.State.OPEN);
         if (current.isEmpty()) {
-            return MINI.deserialize("<gold><bold>Your order</bold></gold>\n<gray>None running — <white>/jobs");
+            return MINI.deserialize("<gold><bold>Your order</bold></gold>\n<gray>None running. <white>/jobs");
         }
         Order order = current.get();
         String what = orders.work(order).map(Work::name).orElse(order.work());

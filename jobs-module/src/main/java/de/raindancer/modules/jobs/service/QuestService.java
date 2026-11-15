@@ -375,7 +375,7 @@ public final class QuestService {
             log.error("{} was not paid for quest {} and it could not be recorded as owed: it is lost unless paid by hand.",
                     player.getName(), template.id());
         }
-        log.warn("{} could not be paid for quest {}: {} — kept as owed, retried every minute.", player.getName(),
+        log.warn("{} could not be paid for quest {}: {}. Kept as owed and retried every minute.", player.getName(),
                 template.id(), result.outcome());
         messages.send(player, "jobs.quest.owed", "quest", template.title(), "amount", Fees.format(quest.pay()));
         return owed;

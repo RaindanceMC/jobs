@@ -1,16 +1,16 @@
 # Personal quests: every player gets a few each day, some anybody can do and some for their role (/role).
-# They are done by playing — mining, killing, fishing… — and pay as soon as they are done (/quests).
+# They are done by playing (mining, killing, fishing) and pay as soon as they are done (/quests).
 #
 # The sizes here are for the poorest players. The richer somebody is, the higher their tier: each tier asks
 # a little more and pays rather more (/settings: Personal quests), so quests stay worth doing.
 #
 #   title   what it is called
-#   task    mine    — break blocks, never ones a player put there      things: blocks ("iron_ore", "*_log")
-#           harvest — break ripe crops                                 things: crop blocks ("wheat", "carrots")
-#           kill    — kill mobs, never from spawners or spawn eggs     things: mobs ("zombie")
-#           fish    — reel fish in with a rod                          things: the fish ("cod")
-#           breed   — breed animals                                    things: the animals ("cow")
-#           travel  — move that many blocks, on foot or riding         (no things)
+#   task    mine:     break blocks, never ones a player put there        things: blocks ("iron_ore", "*_log")
+#           harvest:  break ripe crops                                   things: crop blocks ("wheat", "carrots")
+#           kill:     kill mobs, never from spawners or spawn eggs       things: mobs ("zombie")
+#           fish:     reel fish in with a rod                            things: the fish ("cod")
+#           breed:    breed animals                                      things: the animals ("cow")
+#           travel:   move that many blocks, on foot or riding           (no things)
 #   things  what counts; * for anything, "!" leaves one out
 #   role    the role it is for, as in roles.yml ("miner"); left out: anybody
 #   amount  how many, at the lowest tier

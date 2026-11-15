@@ -16,7 +16,7 @@ import org.bukkit.Material;
 public record QuestSettings(
 
         @In("quests") @Title("Personal quests")
-        @Describe("Every player gets a few quests a day — mining, fishing, hunting… — and is paid as soon as one "
+        @Describe("Every player gets a few quests a day (mining, fishing, hunting) and is paid as soon as one "
                 + "is done. /quests")
         @Key("quests.enabled") boolean enabled,
 
@@ -28,7 +28,7 @@ public record QuestSettings(
         @Key("quests.per-day-for-role") int perDayForRole,
 
         @In("quests") @Title("Wealth step")
-        @Describe("A player with this much is tier 1; every doubling past it is a tier more — three steps is tier 2, "
+        @Describe("A player with this much is tier 1; every doubling past it is a tier more: three steps is tier 2, "
                 + "seven is tier 3. Empty or 0: everybody is tier 0.")
         @Key("quests.tiers.step") String wealthStep,
 
@@ -54,8 +54,8 @@ public record QuestSettings(
         @Key("quests.tell-on-join") boolean tellOnJoin,
 
         @In("quests") @Title("Free swaps a day") @Range(min = 0, max = 9)
-        @Describe("How many of the day's quests a player may swap for another of the same kind, free — one not "
-                + "begun yet. Clicking a quest in /quests offers it.")
+        @Describe("How many of the day's quests a player may swap for another of the same kind, free. Only quests not "
+                + "begun yet can be swapped. Clicking a quest in /quests offers it.")
         @Key("quests.free-rerolls") int freeRerolls) {
 
     public static final QuestSettings DEFAULTS = new QuestSettings(true, 3, 2, "5000", 35, 60, 8, 25, 100, true, 1);
