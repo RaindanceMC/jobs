@@ -74,7 +74,6 @@ public final class JobsModule implements FlexModule {
         SettingsStore<JobsSettings> settings = context.settings(JobsSettings.class, JobsSettings.DEFAULTS);
         context.core().messages().defineFrom(JobsModule.class.getResourceAsStream("messages.yml"),
                 context.chat().brand()::chatPrefix);
-        context.core().messages().seriousFrom(JobsModule.class.getResourceAsStream("messages-serious.yml"));
         int registered = PermissionNodes.register(context.plugin().getServer());
         if (registered > 0) {
             context.log().info("{} permission(s) registered.", registered);
