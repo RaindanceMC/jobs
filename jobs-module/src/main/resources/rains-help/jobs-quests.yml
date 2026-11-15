@@ -1,8 +1,8 @@
 id: jobs-quests
 title: Daily quests
-summary: "A few personal quests every day — mining, fishing, hunting — paid the moment each is done."
+summary: "A few personal quests every day (mining, fishing, hunting), paid the moment each is done."
 intro: |
-  Homework, but it pays.
+  Quests are small tasks that pay as soon as you finish them.
 icon: WRITABLE_BOOK
 category: Progress & rewards
 order: 21
@@ -17,7 +17,7 @@ sections:
   - question: What are quests?
     title: Quests
     text: |
-      {run:/quests} shows your quests for today: <white>{setting:jobs-quests:quests.per-day|count}</white> for anybody{if:jobs-quests:quests.per-day-for-role > 0}, plus <white>{setting:jobs-quests:quests.per-day-for-role|count}</white> about your role (a Miner's are about ore, a Hunter's about monsters){/if}. Just do the thing — a +1 pops up as you progress, and the pay arrives the moment one is done.
+      {run:/quests} shows your quests for today: <white>{setting:jobs-quests:quests.per-day|count}</white> for anybody{if:jobs-quests:quests.per-day-for-role > 0}, plus <white>{setting:jobs-quests:quests.per-day-for-role|count}</white> about your role (a Miner's are about ore, a Hunter's about monsters){/if}. Do the task and a +1 shows as you progress. The pay arrives the moment one is done.
       {if:jobs-quests:quests.tell-on-join}When you join with new quests you are told.{/if}
   - question: Do they get harder as I get rich?
     title: Tiers
@@ -33,7 +33,7 @@ sections:
     title: Swapping
     when: jobs-quests:quests.free-rerolls > 0
     text: |
-      You may swap <white>{setting:jobs-quests:quests.free-rerolls|count}</white> quest(s) a day for another of the same kind, free — only one you have not begun. Click the quest in {cmd:/quests}.
+      You may swap <white>{setting:jobs-quests:quests.free-rerolls|count}</white> quest(s) a day for another of the same kind, free. Only quests you have not begun can be swapped. Click the quest in {cmd:/quests}.
   - question: How much do they pay?
     title: Pay
     text: |

@@ -2,7 +2,7 @@ id: jobs-staff
 title: Jobs administration
 summary: "Put up and end goals, give or reset quests, reload the goal, quest and order files."
 intro: |
-  The board is yours to arrange.
+  Manage the goals on the board, and the quests and orders players get.
 icon: COMMAND_BLOCK
 category: Staff
 order: 20

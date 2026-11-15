@@ -2,7 +2,7 @@ id: jobs
 title: The job board
 summary: "Server-wide goals everybody works on together, and your share of the reward."
 intro: |
-  Everybody pulls on the same rope, and the reward is split by who pulled hardest. Fair, if you ignore the fish.
+  Everybody works on the same goals. The reward is split by how much each player gave.
 icon: LECTERN
 category: Progress & rewards
 order: 20
@@ -21,7 +21,7 @@ sections:
   - question: How do I help?
     title: Helping
     text: |
-      Two kinds of goal. <b>Deliver</b>: collect the items and hand them in at the board (plain items, not renamed); the board says what counts. <b>Fish</b>: fish with a rod anywhere — every fish you reel in counts on its own, and you see a +1 each time.
+      Two kinds of goal. <b>Deliver</b>: collect the items and hand them in at the board (plain items, not renamed); the board says what counts. <b>Fish</b>: fish with a rod anywhere. Every fish you reel in counts, and you see a +1 each time.
       {if:jobs:stop-sales}While a goal collects an item, the shop does not sell it, so you cannot buy it and hand it straight in.{/if}
   - question: How is the reward split?
     title: Your share

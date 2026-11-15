@@ -2,7 +2,7 @@ id: jobs-orders
 title: Orders (work on demand)
 summary: "Name an amount, get work to earn it against the clock: harder work and tighter time for more."
 intro: |
-  Ask for money and I will give you work. Ask for a lot and I will give you very little time.
+  Name an amount and you get work that earns it. The more you ask, the less time you get.
 icon: CLOCK
 category: Progress & rewards
 order: 22
@@ -29,7 +29,7 @@ sections:
   - question: How many orders may I take?
     title: Per day
     text: |
-      <white>{setting:jobs-orders:orders.per-day|count}</white> a day, done or not. Only one at a time: a bar shows your progress and what time is left. Give up with {cmd:/quests cancel} — nothing is paid and it still counts as one of today's.
+      <white>{setting:jobs-orders:orders.per-day|count}</white> a day, done or not. Only one at a time: a bar shows your progress and what time is left. Give up with {cmd:/quests cancel}. Nothing is paid and it still counts as one of today's.
   - question: What if I fail?
     title: Failing
     text: |
