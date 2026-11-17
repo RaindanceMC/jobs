@@ -154,9 +154,11 @@ public final class QuestListener implements IJobsListener {
             services.quests().preload(player.getUniqueId());
             services.orders().preload(player.getUniqueId());
         });
+        // Not on the very first join: a new player has enough to read then. The quests are waiting all the same.
+        boolean firstJoin = !player.hasPlayedBefore();
         de.raindancer.core.platform.util.Scheduling.entityLater(services.plugin(), player, 20L * 10, () -> {
-            if (!player.isOnline() || !services.quests().settings().enabled() || !services.quests().settings().tellOnJoin()
-                    || !player.hasPermission(PermissionNodes.USE)) {
+            if (!player.isOnline() || firstJoin || !services.quests().settings().enabled()
+                    || !services.quests().settings().tellOnJoin() || !player.hasPermission(PermissionNodes.USE)) {
                 return;
             }
             // Handing out today's quests writes them to the database: off the server's threads, then the greeting.
